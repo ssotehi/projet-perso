@@ -1,0 +1,39 @@
+//////////// USE POSTMAN TOOL, THINK YOU /////////////
+
+JSON user object - create
+Script to copy and paste (postman->body->raw)
+
+{
+    "name" : "fofo",
+    "login" : "login120",
+    "password" : "pwd120",
+    "company_id" : 2,
+    "created" : "2010-07-04 10:20:10"
+}
+
+////////////////////////////////////////////////////
+
+JSON user object - update
+Script to copy and paste (postman->body->raw)
+
+{
+    "id":"13",
+    "name" : "jiji",
+    "login" : "login120",
+    "password" : "pwd120",
+    "company_id" : 2,
+    "created" : "2010-07-04 10:20:10"
+}
+
+///////////////////////////////////////////////////
+
+JSON object - delete
+Script to copy and paste (postman->body->raw)
+
+{
+    "id":"13"
+}
+
+
+
+
