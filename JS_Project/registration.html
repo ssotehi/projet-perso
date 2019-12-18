@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Validation d'un formulaire en JavaScript</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <style>
+  	*{
+  	  padding: 0px 0px 0px 0px;
+  	  margin: 0px 0px 0px 0px;
+  	}
+  	body,html
+  	{
+  	  background-color: #2b3137;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16pt;
+      color: #000000;
+  	}
+  	/* Style the input*/
+  	input[type=text],
+  	input[type=email],
+  	input[type=password]{
+  	  width: 85%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-top: 6px;
+      margin-bottom: 16px;
+      background: #7f98a6;
+      color: white;
+      font-size: 18px;
+    }
+    /* Style the submit button */
+    input[type=submit]{
+      width: 85%;
+      cursor:  pointer;
+      background-color: grey;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      padding: 18px;
+      margin-top: 6px;
+    }
+    input[type=submit]:hover{
+      background-color: #0b3d75;
+    }  
+  	.container{
+  	  width: 40%;
+  	  padding: 20px;
+  	  margin: 15px auto 0 auto;
+  	  text-align: center;
+  	  border: 1px solid #D3D3D3;
+  	  background: #F1F1F1;
+  	}
+
+  	.message {
+  	  display: none;
+  	  font-size: 12px;
+  	  padding: 0;
+  	  margin: 0;
+  	}
+ 
+  </style>
+  <script type="text/javascript" src="jquery-3.4.1.js"></script>
+</head>
+<body>
+  <div class="container">
+  	 <p class="message" ></p>
+  	<h3>Registration</h3>
+    <form id="register" method="POST" >
+ 	  <input class="field" id="pseudo" type="text" name="username" placeholder="Votre nom d'utilisateur" title="Veuillez entrer votre nom d'utilisateur (ou pseudo). " required /><br>
+ 	  <input class="field" id="last_name" type="text" name="lastname" placeholder="Votre nom" title="Veuillez entrer votre nom." required /><br>
+ 	  <input class="field" id="first_name" type="text" name="firstname" placeholder="Votre prénom" title="Veuillez entrer votre prénom" required /><br>
+ 	  <input class="field" id="birth_day" type="text" name="birthday" placeholder="Votre date naissance au format JJ/MM/YY" title="Veuillez entrer votre date de naissance."required /><br>
+ 	  <input class="field" id="mail" type="text" name="email" placeholder="Votre e-mail" title="Veuillez entrer votre e-mail" required/><br>
+ 	  <input class="field" id="pwd" type="password" name="password" placeholder="Votre mot de passe" title="Veuillez entrer votre motde passe, assurez vous que votre mot de passe contient au minimum 8 caractères, dont un chiffre, une lettre miniscule et une lettre majuscule." required /><br>
+ 	  <input class="field" id="confirm" type="password" name="confirmPWD" placeholder="Confirmer votre mot de passe" title="Veuillez confirmer votre mot de passe." required /><br> 
+ 	  <select class="" id="gender" name="gender" title="Veuiller selectionner votre sexe." required>
+        <option value="">Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+ 	  </select>
+ 	  <input class="" id="adult" type="checkbox" name="adult" required/> adulte<br> 
+ 	  <input id="send" type="submit" value="Register" />
+    </form>
+  </div>
+  <div id="log"></div>
+  <script>
+
+    $(document).ready(function(){
+
+      const pseudos = ["root", "admin", "dieu"];
+  	  const emails = ["root@paca.happy-dev.fr", "admin@paca.happy-dev.fr", "dieu@paca.happy-dev.fr"];
+
+      var $pseudo = $('#pseudo'),
+      $lastname = $('#last_name'),
+      $firstname = $('#first_name'),
+      $birthday = $('#birth_day'),
+      $email = $('#mail'),
+      $password = $('#pwd'),
+      $confirm = $('#confirm'),
+      $gender = $('#gender'),
+      $adult = $('#adult'),
+      $register = $('#register'),
+      $field = $('.field'),
+      $message = $( ".message" );
+      $ajaxResponse = $('ajax-response');
+
+      var rePseudo = /^([0-9a-zA-Z_]){4,20}$/;
+      var reName =  /^([a-zA-Z ]){2,50}$/;
+      var reBirhtDay = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+      var reEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]{2,}\.[a-zA-Z]{2,4}$/;
+      var rePassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+      var isValid = new Boolean(false);
+      console.log('Valiiiiiiiiiiiiiiiiid' + isValid);
+          
+      // calculer l'age de la personne
+      function ageCalcul(dNaissance) {
+        let nDifferenceEnMilliseconde = Date.now() - dNaissance.getTime();
+        let dAge = new Date(nDifferenceEnMilliseconde);                     // Millisecondes
+        
+      return Math.abs(dAge.getUTCFullYear() - 1970);
+      }
+
+      // Fonction pour valider les champs input 
+      function isValidField(oField, sRegExp) {
+
+         oField.keyup(function(){      	
+
+         console.log('Field is: '+oField.attr('id'));
+
+         if(!oField.val().match(sRegExp)){             
+           isValid = false;
+           $(oField).css(
+           {
+              background: '#ca9495',
+              color: '#FFFFFF'
+           });
+              
+           $message.html( "<h3 style='color:red'>Champ non valide !!...</h3>" ).show();    
+           console.log(oField.text()+'valid: '+isValid);      
+           console.log('returned Valid: '+isValid); 
+           return isValid;
+         }
+         else{
+
+           isValid = true;
+           $(oField).css(
+    	     {
+              background: '#94b080',
+              color: '#FFFFFF'
+    	     });
+                
+           $message.html( "<h3 style='color:green'>Champ valide !!...</h3>" ).show();  
+           console.log(oField.text()+'Valid: '+isValid);
+           console.log('returned Valid: '+isValid); 
+           return isValid;
+         }
+
+        });  // end callback
+        
+      }  // isValidField
+
+      if(!isValidField($pseudo, rePseudo)){
+        
+        $pseudo.blur(function(){
+     
+        console.log("Pseudo valid: " + isValid);
+        console.log("Data pseudo: " + $pseudo.val());
+        
+        for(var idx = 0; idx < pseudos.length; idx++){
+          if($pseudo.val() === pseudos[idx])
+          {
+            isValid = false;
+            console.log("Error: User exist, plaise chosse another..");
+            $('input[name=username]').val('User exist, choose another please!!!.');
+            $pseudo.css(
+            {
+              background: '#ca9495',
+                  color: '#FFFFFF'
+            });
+            
+            $message.html( "<h3 style='color:red'>Nom d'utilisteur non vadide !!...</h3>" ).show();
+            $pseudo.focus(function(){
+              $('input[name=username]').val('');
+              //$message.html( "<h3 style='color:red'>Nom d'utilisteur non vadide !!...</h3>" ).show();
+            }); 
+          }
+         }	
+        });
+      }
+
+      if(!isValidField($lastname, reName)){
+        
+        $lastname.blur(function(){
+        console.log("LastName valid: " + isValid);
+        console.log("data latstname: " + $lastname.val());
+
+        });
+      }
+
+      if(!isValidField($firstname, reName)){
+        
+        $firstname.blur(function(){
+        	
+        console.log("FirstName valid: " + isValid);
+        console.log("Data firstname: " + $firstname.val());
+
+        });
+      }
+
+      if(!isValidField($birthday, reBirhtDay)){
+
+        $birthday.blur(function(){
+        console.log("BirthDay valid: " + isValid);
+        console.log("data birthday: " + $birthday.val());
+
+        var currentDate = new Date();
+        console.log("Day: "+(currentDate.getDate())+" Month: "+(currentDate.getMonth()+1)+" Year: "+(currentDate.getYear()+1970));
+        
+        var bdArray =  $birthday.val().split('/');
+
+        var bDay   = bdArray[0];
+        var bMonth = bdArray[1];
+        var bYear  = bdArray[2];
+         
+        var dtBirth = new Date(bYear,bMonth,bDay);
+
+        if(dtBirth.getTime() < Date.now()){
+          console.log("La date de naissance et correcte.");
+          console.log(ageCalcul(dtBirth)+" ans");
+        }
+        else{
+          console.log("La date de naissance ne peux pas etre superieure à la date actuelle.");
+        }
+
+        });
+      }
+
+      if(!isValidField($email, reEmail)){
+
+        $email.blur(function(){
+
+        console.log("Email valid: " + isValid);
+        console.log("data email: " + $email.val());
+
+        // Test si l'adresse email existe
+        for(var idx = 0; idx < emails.length; idx++){
+          if($email.val() === emails[idx])
+          {
+          	isValid = false;
+            console.log("Error: Email exist, plaise chosse another.");
+            $('input[name=email]').val('Email exist, choose another please!!!.');
+            $email.css(
+            {
+               background: '#ca9495',
+               color: '#FFFFFF'
+            });
+            
+            $email.focus(function(){
+              $('input[name=email]').val('');
+              
+            });
+           }
+         }
+        });
+      }
+
+      if(!isValidField($password, rePassword)){
+
+        $password.blur(function(){
+
+        console.log("Password valid: " + isValid);
+        console.log("data password: " + $password.val());
+
+        });
+      }
+
+      if(!isValidField($confirm, rePassword)){
+    
+        $confirm.blur(function(){
+
+        console.log("Confirm valid: " + isValid);
+        console.log("data confirm password: " + $confirm.val());
+
+        if($confirm.val() !== $password.val()){
+        	isValid = false;
+          $('input[name=confirmPWDon]').val('');
+            $confirm.css(
+            {
+               background: '#ca9495',
+               color: '#FFFFFF'
+            });
+            
+            $message.html( "<h3 style='color:red'>Mot de passe incorrect !!!...</h3>" ).show();
+            $confirm.focus(function(){
+              $('input[name=confirmPWDon]').val('');
+              $message.html( "<h3 style='color:red'>Mot de passe incorrect !!!...</h3>" ).show();
+            });
+         }
+        });
+      }
+
+      // Envoyer le formulaire. 
+      $('#register').submit(function(event){
+     
+        console.log('isValidForm: '+isValid);
+
+        if(isValid){
+          console.log("AJAX Submit !!!!.");
+          var data = $('#register').serialize();
+		      var request = $.ajax({
+			      type: 'POST',
+			      url: 'register.php',
+			      data: data,
+			      success: function(){
+			        console.log(data);
+			      }
+		      });
+		      request.done(function( msg ){
+             $( "#log" ).html( msg );
+          });
+          
+          return false;
+        }
+        $message.html( "<h3 style='color:red'>Veuillez corriger les erreurs, pour envoyer le formulaire !!!.</h3>" ).show();
+        event.preventDefault();
+	   });  // end submit
+}); // end JQuery 
+
+</script>
+</body>
+</html>
